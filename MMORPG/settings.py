@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
 
-    'sitelogoc',
+    'sitelogic',
+    'django_filters',
 ]
 
 SITE_ID = 1

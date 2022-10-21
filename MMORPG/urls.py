@@ -20,5 +20,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('pages/', include('django.contrib.flatpages.urls')),
-    path('sitelogoc/', include('sitelogoc.urls')),
+    path('sitelogic/', include('sitelogic.urls')),
+    path('announcement/', include('sitelogic.urls')),
 ]
