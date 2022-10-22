@@ -40,6 +40,19 @@ class PublicationList(ListView):
     #     return context
 
 
+
+class PrivatePage(ListView):
+    model = Publication
+    ordering = '-publication_time_publication'
+    template_name = 'private_page.html'
+    context_object_name = 'id'
+
+    def get_context_data(self, **kwargs):
+        context = super(PrivatePage, self).get_context_data(**kwargs)
+        context['reaction'] = Reaction.objects.all()
+        return context
+
+
 # Добавляем новое представление для создания Публикаций.
 class PublicationCreate(CreateView):
     login_url = '/accounts/login/'
@@ -66,11 +79,44 @@ class PublicationCreate(CreateView):
 
 
 
+
+class PublicationUpdate(UpdateView):
+    # login_url = '/accounts/login/'
+    # permission_required = ('news.add_post',
+    #                        'news.change_post')
+    redirect_field_name = ('publication_list')
+    form_class = PublicationForm
+    model = Publication
+    template_name = 'create.html'
+    success_url = reverse_lazy('private_page_list')
+
+# Представление удаляющее товар.
+class PublicationDelete(DeleteView):
+    model = Publication
+    template_name = 'delete.html'
+    success_url = reverse_lazy('private_page_list')
+
+class ReactionDelete(DeleteView):
+    model = Reaction
+    template_name = 'delete.html'
+    success_url = reverse_lazy('private_page_list')
+
+
+
 def send_reaction(request):
-    print('test')
     user = request.user
     text_reaction = request.POST.get('textfield', None)
     publication_id = request.POST.get('publication.pk')
     # Создаём отклик в базе данных
     Reaction.objects.create(reaction_text=text_reaction, reaction_to_publication_id=publication_id, reaction_user_id=user.id)
     return redirect('publication_list')
+
+def change_status(request):
+    user = request.user
+    react_id = request.POST.get('reaction_id')
+    react_new_status = request.POST.get('change_status')
+    # Создаём отклик в базе данных
+    Reaction.objects.filter(id=react_id).update(reaction_status=react_new_status)
+    # print(obj.reaction_status)
+
+    return redirect('private_page_list')

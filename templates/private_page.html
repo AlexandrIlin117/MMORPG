@@ -1,10 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'flatpages/default.html' %}
 
-</body>
-</html>
+{% block title %}
+Все новости и статьи нашего портала:
+{% endblock title %}
+
+{% block content %}
+   <h1>Для поиска наберите часть текста интересующего вас заголовка:</h1>
+
+   {# Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе #}
+   <form action="" method="get">
+       {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}
+        {{ filterset.form.as_p }}
+       {# Добавим кнопку отправки данных формы #}
+       <input type="submit" value="Найти" />
+   </form>
+
+   <hr>
+
+   {% if id %}
+       <table>
+           <tr>
+               <td>Заголовок:</td>
+                <td></td>
+               <td>Дата публикации:</td>
+               <td></td>
+               <td>Содержание:</td>
+           </tr>
+
+           {% for publication in id %}
+           <tr>
+               <td>{{ publication.publication_header_announcement_news }}</a></td>
+                <td></td>
+               <td>{{ publication.publication_time_publication|date:'d M Y' }}</td>
+               <td></td>
+               <td>{{ publication.publication_content|safe }}
+                   <a href="{% url 'publication_edit' publication.pk %}">
+                         <button>Редактировать публикацию с ID: {{ publication.pk }}</button>
+                        </a>
+                   <a href="{% url 'publication_delete' publication.pk %}">
+                         <button>Удалить публикацию с ID: {{ publication.pk }}</button>
+                        </a>
+                          <hr>
+                 </form>
+                {% for item in reaction %}
+                  {% if item.reaction_to_publication_id == publication.id %}
+                   <p><span style="background-color: #ffff00;">От пользователя ({{item.reaction_user}}):
+                       {{ item.reaction_text }} </span><br>Статус:  {{ item.reaction_status}}
+                       <p></p>
+                    <a href="{% url 'reaction_delete' item.pk %}">
+                         <button style="height:30px;width:200px">Удалить отклик с ID: {{ item.pk }}</button>
+                        </a></p>
+                   <form method="POST" action="change_status">
+                      {% csrf_token %}
+                          <input type="hidden" name="change_status" value="ПР">
+                            <input type="hidden" name="reaction_id" value="{{item.pk}}">
+                          <button style="height:30px;width:200px" type="submit " > Принять отклик ID: {{ item.pk }} </button>
+                          <p></p>
+                 </form>
+                   <form method="POST" action="change_status">
+                      {% csrf_token %}
+                          <input type="hidden" name="change_status" value="ОТ">
+                              <input type="hidden" name="reaction_id" value="{{item.pk}}">
+                          <button style="height:30px;width:200px" type="submit " > Отклонить отклик ID: {{ item.pk }} </button>
+                          <hr>
+                 </form>
+
+                   {% endif %}
+                   {% endfor %}
+               </td>
+
+           </tr>
+           {% endfor %}
+
+       </table>
+   {% else %}
+       <h2>Статей и новостей нет!</h2>
+   {% endif %}
+
+{% endblock content %}
