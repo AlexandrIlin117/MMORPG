@@ -1,6 +1,7 @@
 from django.urls import path
 # Импортируем созданное нами представление
 from .views import PublicationCreate, PublicationList
+from  .views import send_reaction
 
 
 urlpatterns = [
@@ -12,5 +13,6 @@ urlpatterns = [
    # Для этого вызываем метод as_view.
     path('news/', PublicationList.as_view(), name='publication_list'),
     path('create/', PublicationCreate.as_view(), name='publication_create'),
+    path('news/send_reaction', send_reaction, name='send_reaction'),
 
 ]

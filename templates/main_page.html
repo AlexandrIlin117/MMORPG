@@ -6,43 +6,49 @@
 
 {% block content %}
    <h1> Горячие новости гильдии и свободных охотников !!!</h1>
-
-
    <hr>
+
    {% if id %}
        <table>
            <tr>
                <td>Заголовок</td>
-                <td></td>
+               <td></td>
                <td>Дата публикации</td>
+               <td></td>
+               <td>Категория</td>
                <td></td>
                <td>Содержание</td>
            </tr>
 
-           <!-- Для каждого товара будете генерироваться новая строчка,
-           т.е. новый HTML код, который указан в теле цикла.
-           При этом сам цикл работает точно так же, как и в Python.
-           product — переменная цикла, т.е. наш товар полученный из списка -->
            {% for publication in id %}
-
            <tr>
-               <!-- Не забываем, что переменные в шаблоне ничем не отличаются
-                от переменных в Python. Здесь также можно получать доступ к
-                полям объекта модели. Например, здесь мы выводим имя,
-                в следующем столбце описание, и т.д.  -->
-                <td> {{ publication.publication_header_announcement_news }}</td>
-
-                <td></td>
-               <td>{{ publication.publication_time_publication }}
+               <td> {{ publication.publication_header_announcement_news }}</td>
+               <td></td>
+               <td>{{ publication.publication_time_publication|date:'d M Y' }}</td>
+               <td></td>
+               <td>
+                   {% for el in publication.publication_categories.all %}
+                    {% csrf_token %}
+                     {{el}}
+                   {% endfor %}
                </td>
                <td></td>
                <td>{{ publication.publication_content|safe }}
-                <hr>
+                   <!-- В этом месте проверяется что данная публикация не пренадлежит самому пользователяю
+                         и что она не является новостью. Если проверкап ройдена то форма для отправки отклика
+                         становится доступна. -->
+                      {% if user.id != publication.publication_author_id and publication.publication_announcement_news != "НО" %}
+                      <form method="POST" action="send_reaction">
+                      {% csrf_token %}
+                      <input type="text" name="textfield"  size="44">
+                          <input type="hidden" name="publication.pk" value="{{publication.pk}}">
+                          <button type="submit " > Отправить отклик на пост с ID: {{ publication.pk }} </button>
+                          <hr>
+                 </form>
+                     {% endif %}
                </td>
-
            </tr>
            {% endfor %}
-
        </table>
    {% else %}
        <h2>Статей и новостей нет!</h2>

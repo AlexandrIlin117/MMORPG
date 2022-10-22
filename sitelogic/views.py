@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from django.views.generic import TemplateView
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Publication, PublicationCategory, Category
+from .models import Publication, PublicationCategory, Category, Reaction
 from .forms import PublicationForm
 # Create your views here.
 
@@ -63,3 +63,14 @@ class PublicationCreate(CreateView):
         if self.request.path =='/announcement/create/':
              publication.publication_announcement_news = 'ОБ'
              return super().form_valid(form)
+
+
+
+def send_reaction(request):
+    print('test')
+    user = request.user
+    text_reaction = request.POST.get('textfield', None)
+    publication_id = request.POST.get('publication.pk')
+    # Создаём отклик в базе данных
+    Reaction.objects.create(reaction_text=text_reaction, reaction_to_publication_id=publication_id, reaction_user_id=user.id)
+    return redirect('publication_list')
