@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+	<title> Уведомление об отклике</title>
+</head>
+<body>
+<h2>{{session_publication_author}} на ваше объявление: </h2>
+<h3 style="color:#aaa;font-style:italic;"><span style="color:#800080;">{{session_announcement}}</span>&nbsp;</h3>
+
+<h2>откликнулся {{session_reaction_user}}.</h2>
+
+<p>Пожайлуста примите решение. Для перехода к форме ответа перейдите по ссылке:</p>
+
+<p><a href="http://127.0.0.1:8000/sitelogic/private_page/?id__icontains={{ session_publication_id }}&publication_header_announcement_news__icontains=&publication_announcement_news__icontains=&publication_author__username__icontains=&publication_time_publication=&publication_categories__category_name=">http://Ссылка на объявление на которое пришёл отклик</a></p>
+</body>
+</html>

@@ -22,4 +22,5 @@ urlpatterns = [
     path('pages/', include('django.contrib.flatpages.urls')),
     path('sitelogic/', include('sitelogic.urls')),
     path('announcement/', include('sitelogic.urls')),
+    path('accounts/', include('allauth.urls')),
 ]

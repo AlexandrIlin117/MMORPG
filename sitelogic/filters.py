@@ -56,6 +56,7 @@ class PublicationFilter(FilterSet):
        # В fields мы описываем по каким полям модели
        # будет производиться фильтрация.
        fields = {
+           'id': ['icontains'],
            'publication_header_announcement_news': ['icontains'],
            'publication_announcement_news': ['icontains'],
            'publication_author__username': ['icontains'],

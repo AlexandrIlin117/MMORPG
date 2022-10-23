@@ -38,15 +38,29 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+# Что бы работали сигналы надо указать не имя нашего приложения, а его конфиг, чтобы всё заработало
+    'sitelogic.apps.SitelogicConfig',
     'django.contrib.sites',
     'django.contrib.flatpages',
 
     'ckeditor',
     'ckeditor_uploader',
 
-    'sitelogic',
+    # 'sitelogic',
     'django_filters',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    # ... include the providers you want to enable:
+    'allauth.socialaccount.providers.google',
 ]
+
+DEFAULT_FROM_EMAIL = 'ilin.run1979@yandex.ru'  # здесь указываем уже свою ПОЛНУЮ почту, с которой будут отправляться письма
+
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = ('publication_list')
+LOGOUT_REDIRECT_URL = ('publication_list')
 
 SITE_ID = 1
 
@@ -78,6 +92,24 @@ TEMPLATES = [
         },
     },
 ]
+
+AUTHENTICATION_BACKENDS = [
+
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+
+
+ACCOUNT_FORMS = {'signup': 'sitelogic.forms.CommonSignupForm'}
 
 WSGI_APPLICATION = 'MMORPG.wsgi.application'
 
@@ -123,6 +155,18 @@ USE_I18N = True
 
 USE_TZ = True
 
+ADMINS = [
+    ('IAEadmin', 'macisblocked@gmail.com'),
+]
+EMAIL_SUBJECT_PREFIX = '[SuperService]'
+
+EMAIL_HOST = 'smtp.yandex.ru'  # адрес сервера Яндекс-почты для всех один и тот же
+EMAIL_PORT = 465  # порт smtp сервера тоже одинаковый
+EMAIL_HOST_USER = 'ilin.run1979'  # ваше имя пользователя, например, если ваша почта user@yandex.ru, то сюда надо писать user, иными словами, это всё то что идёт до собаки
+EMAIL_HOST_PASSWORD = ''  # пароль от почты
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True  # Яндекс использует ssl, подробнее о том, что это, почитайте в дополнительных источниках, но включать его здесь обязательно
+SERVER_EMAIL = 'ilin.run1979@yandex.ru'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/

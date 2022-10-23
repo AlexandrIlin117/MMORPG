@@ -37,7 +37,7 @@
                    <!-- В этом месте проверяется что данная публикация не пренадлежит самому пользователяю
                          и что она не является новостью. Если проверкап ройдена то форма для отправки отклика
                          становится доступна. -->
-                      {% if user.id != publication.publication_author_id and publication.publication_announcement_news != "НО" %}
+                      {% if user.id != publication.publication_author_id and publication.publication_announcement_news != "НО" and request.user.is_authenticated %}
                       <form method="POST" action="send_reaction">
                       {% csrf_token %}
                       <input type="text" name="textfield"  size="44">
