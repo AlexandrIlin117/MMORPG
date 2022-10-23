@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Publication, PublicationCategory, Category, Reaction
 from .forms import PublicationForm
+from .filters import PublicationFilter
 # Create your views here.
 
 class PublicationList(ListView):
@@ -47,10 +48,33 @@ class PrivatePage(ListView):
     template_name = 'private_page.html'
     context_object_name = 'id'
 
+        # Переопределяем функцию получения списка статей;
+
+    def get_queryset(self):
+        # Получаем обычный запрос
+        queryset = super().get_queryset()
+        # Используем наш класс фильтрации.
+        # self.request.GET содержит объект QueryDict, который мы рассматривали
+        # в этом юните ранее.
+        # Сохраняем нашу фильтрацию в объекте класса,
+        # чтобы потом добавить в контекст и использовать в шаблоне.
+        self.filterset = PublicationFilter(self.request.GET, queryset)
+        # Возвращаем из функции отфильтрованный список статей;
+        return self.filterset.qs
+
     def get_context_data(self, **kwargs):
-        context = super(PrivatePage, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        # Добавляем в контекст объект фильтрации.
+        context['filterset'] = self.filterset
         context['reaction'] = Reaction.objects.all()
         return context
+
+    # def get_context_data(self, **kwargs):
+    #     context = super(PrivatePage, self).get_context_data(**kwargs)
+    #     context['reaction'] = Reaction.objects.all()
+    #     return context
+
+
 
 
 # Добавляем новое представление для создания Публикаций.

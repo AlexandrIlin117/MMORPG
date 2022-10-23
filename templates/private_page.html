@@ -34,6 +34,7 @@
                <td>{{ publication.publication_time_publication|date:'d M Y' }}</td>
                <td></td>
                <td>{{ publication.publication_content|safe }}
+                    <p></p>
                    <a href="{% url 'publication_edit' publication.pk %}">
                          <button>Редактировать публикацию с ID: {{ publication.pk }}</button>
                         </a>
