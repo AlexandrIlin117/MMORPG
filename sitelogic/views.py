@@ -10,40 +10,15 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from .models import Publication, PublicationCategory, Category, Reaction
 from .forms import PublicationForm
 from .filters import PublicationFilter
+from django.core.mail import EmailMultiAlternatives # импортируем класс для создание объекта письма с html
+from django.template.loader import render_to_string # импортируем функцию, которая срендерит наш html в текст
 # Create your views here.
 
 class PublicationList(ListView):
-    # Указываем модель, объекты которой мы будем выводить
     model = Publication
-    # Поле, которое будет использоваться для сортировки объектов
     ordering = '-publication_time_publication'
-    # Указываем имя шаблона, в котором будут все инструкции о том,
-    # как именно пользователю должны быть показаны наши объекты
     template_name = 'main_page.html'
-    # Это имя списка, в котором будут лежать все объекты.
-    # Его надо указать, чтобы обратиться к списку объектов в html-шаблоне.
     context_object_name = 'id'
-    # paginate_by = 5  # вот так мы можем указать количество записей на странице
-
-    # # Переопределяем функцию получения списка статей;
-    # def get_queryset(self):
-    #     # Получаем обычный запрос
-    #     queryset = super().get_queryset()
-    #     # Используем наш класс фильтрации.
-    #     # self.request.GET содержит объект QueryDict, который мы рассматривали
-    #     # в этом юните ранее.
-    #     # Сохраняем нашу фильтрацию в объекте класса,
-    #     # чтобы потом добавить в контекст и использовать в шаблоне.
-    #     self.filterset = PublicationFilter(self.request.GET, queryset)
-    #     # Возвращаем из функции отфильтрованный список статей;
-    #     return self.filterset.qs
-    #
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     # Добавляем в контекст объект фильтрации.
-    #     context['filterset'] = self.filterset
-    #     return context
-
 
 
 class PrivatePage(LoginRequiredMixin,ListView):
@@ -74,14 +49,9 @@ class PublicationCreate(LoginRequiredMixin,CreateView):
     login_url = '/accounts/login/'
     permission_required = ('sitelogic.add_publication',
                            'sitelogic.change_publication')
-    #permission_denied_message ='Хотите создавать статьи и новости?!
-    # Воспользуйтесь нашим специальным предложением на странице своего профиля!'
     redirect_field_name = ('publication_list')
-    # Указываем нашу разработанную форму
     form_class = PublicationForm
-    # модель товаров
     model = Publication
-    # и новый шаблон, в котором используется форма.
     template_name = 'create.html'
 
     def form_valid(self, form):
@@ -142,4 +112,36 @@ def change_status(request):
     react_new_status = request.POST.get('change_status')
     # Меняем статус отклика в базе данных
     Reaction.objects.filter(id=react_id).update(reaction_status=react_new_status)
+    session_response_to_reation = Reaction.objects.filter(id=react_id)[0]
+    print(session_response_to_reation)
+
+    #Отправляем письмо:
+    if session_response_to_reation.reaction_status == 'ПР':
+        session_response_to_publication = session_response_to_reation.reaction_to_publication
+        print(f'Пользователь написавщий отклик - {session_response_to_reation.reaction_user}')
+        session_response_to_reaction_user = session_response_to_reation.reaction_user
+        print(f'Автор объявления - {session_response_to_publication.publication_author}')
+        session_response_to_author = session_response_to_publication.publication_author
+        print(f'Текст отклика - {session_response_to_reation.reaction_text}')
+        session_response_to_reaction_text = session_response_to_reation.reaction_text
+        print(f'Заголовок объявления - {session_response_to_publication.publication_header_announcement_news}')
+        session_response_to_header = session_response_to_publication.publication_header_announcement_news
+        print(session_response_to_reaction_user.email)
+
+        html = render_to_string(
+            'Response_Reaction.html',
+            {'session_announcement': session_response_to_reaction_user, 'session_response_to_reaction_text': session_response_to_reaction_text,
+             'session_response_to_author': session_response_to_author, 'session_response_to_header': session_response_to_header},
+            # передаем в шаблон любые переменные
+        )
+        msg = EmailMultiAlternatives(
+            subject=f'Уважаемый {session_response_to_reaction_user.first_name} {session_response_to_reaction_user.last_name} ({session_response_to_reaction_user}) на ваш отклик пришёл ответ!',
+            from_email='ilin.run1979@yandex.ru',
+            to=[session_response_to_reaction_user.email]  # отправляем всем из списка
+        )
+        msg.attach_alternative(html, 'text/html')
+        msg.send()
+        print('OK')
+
+        return redirect('private_page_list')
     return redirect('private_page_list')

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>Уведомление о нововоти</title>
+</head>
+<body>
+<h2>Автор {{session_publication_author}} опубликовал новость:</h2>
+
+<h3 style="color:#aaa;font-style:italic;"><span style="color:#800080;"><span style="font-size:22px;">{{session_publication_header}}</span></span></h3>
+
+<p>Для подробного ознакомления перейдите по ссылке указанной ниже:</p>
+
+<p><a href="http://127.0.0.1:8000/sitelogic/private_page/?id__icontains={{session_publication_id}}&publication_header_announcement_news__icontains=&publication_announcement_news__icontains=&publication_author__username__icontains=&publication_time_publication=&publication_categories__category_name=">http://Нажмите что бы перейти к новости</a></p>
+</body>
+</html>
