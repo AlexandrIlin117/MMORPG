@@ -61,6 +61,18 @@ class Reaction(models.Model):
 
 
 
+class OneTimeCode(models.Model):
+    one_username = models.CharField(max_length=150)
+    one_first_name = models.CharField(max_length=150)
+    one_last_name = models.CharField(max_length=150)
+    one_email = models.CharField(max_length=254)
+    one_data_in = models.DateTimeField(auto_now_add=True)
+    one_check_code = models.CharField(max_length=128)
+    one_password = models.CharField(max_length=128, default="GG")
+
+
+
+
 
 
 

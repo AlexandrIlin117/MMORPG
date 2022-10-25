@@ -2,6 +2,8 @@ from django.urls import path
 # Импортируем созданное нами представление
 from .views import PublicationCreate, PublicationList, PrivatePage,PublicationDelete,PublicationUpdate,ReactionDelete
 from  .views import send_reaction, change_status
+from django.contrib.auth.views import LoginView, LogoutView
+from .views import signup, verification_email,ver_email
 
 
 urlpatterns = [
@@ -19,4 +21,13 @@ urlpatterns = [
     path('<int:pk>', ReactionDelete.as_view(), name='reaction_delete'),
     path('news/send_reaction', send_reaction, name='send_reaction'),
     path('private_page/change_status', change_status, name='change_status'),
+
+    # path('login/',
+    #      LoginView.as_view(template_name = 'sign/login.html'),
+    #      name='login'),
+    # path('logout/',
+    #      LogoutView.as_view(template_name = 'sign/logout.html'),
+    #      name='logout'),
+    path('signup/',signup,name='signup'),
+    path('ver_email_page/verification_email',ver_email,name='ver_email_page'),
 ]

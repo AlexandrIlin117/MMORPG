@@ -7,11 +7,16 @@ from django.shortcuts import redirect
 from django.views.generic import TemplateView
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Publication, PublicationCategory, Category, Reaction
-from .forms import PublicationForm
+from .models import Publication, PublicationCategory, Category, Reaction, OneTimeCode, User
+from .forms import PublicationForm, BaseRegisterForm
 from .filters import PublicationFilter
 from django.core.mail import EmailMultiAlternatives # импортируем класс для создание объекта письма с html
 from django.template.loader import render_to_string # импортируем функцию, которая срендерит наш html в текст
+
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import UserCreationForm
+from django.utils.crypto import get_random_string
 # Create your views here.
 
 class PublicationList(ListView):
@@ -145,3 +150,92 @@ def change_status(request):
 
         return redirect('private_page_list')
     return redirect('private_page_list')
+
+
+def signup(request):
+    if request.method == "POST":
+        print("А вот сейчас POST")
+        form = BaseRegisterForm(request.POST)
+        if form.is_valid():
+            data = form
+            # print(form)
+            # verification_email(data)
+            # form.save()
+            # username = form.cleaned_data.get('username')
+            # password = form.cleaned_data.get('password1')
+            print(form.cleaned_data.get('email'))
+            print(form.cleaned_data.get('username'))
+            print(form.cleaned_data.get('first_name'))
+            print(form.cleaned_data.get('last_name'))
+            print(form.cleaned_data.get('password1'))
+            print(form.cleaned_data.get('password2'))
+            session_code = get_random_string(length=32)
+            OneTimeCode.objects.create(one_email=form.cleaned_data.get('email'),
+                                       one_username=form.cleaned_data.get('username'),
+                                       one_first_name=form.cleaned_data.get('first_name'),
+                                       one_last_name=form.cleaned_data.get('last_name'),
+                                       one_password=form.cleaned_data.get('password1'),
+                                       one_check_code=session_code,
+                                    )
+            # Отправляем код на почту;
+
+            html = render_to_string(
+                'send_code.html',
+                {'session_code': session_code,
+                 },
+                # передаем в шаблон любые переменные
+            )
+            msg = EmailMultiAlternatives(
+                subject=f'Код подтверждения!',
+                from_email='ilin.run1979@yandex.ru',
+                to=[form.cleaned_data.get('email')]  # отправляем всем из списка
+            )
+            msg.attach_alternative(html, 'text/html')
+            msg.send()
+
+            # user = authenticate(username=username, password=password)
+            # login(request, user)
+            return redirect('ver_email_page')
+        else:
+            print("Форма не валидна")
+            form = BaseRegisterForm()
+        return render(request, 'signup.html', {'form': form})
+    if request.method == "GET":
+        form = BaseRegisterForm()
+
+    return render(request, 'signup.html', {'form': form})
+
+
+def verification_email(data):
+    print(type(data))
+    print("тест")
+    inform = data
+    username = inform.cleaned_data.get('username')
+    password = inform.cleaned_data.get('password1')
+    print(username)
+    print(password)
+    ver_email()
+    input("Для продолжения намите Enter")
+    redirect('ver_email_page')
+    # return render('signup.html')
+
+def ver_email(request):
+    email = request.POST.get('email', None)
+    code = request.POST.get('code', None)
+    print(email)
+    print(code)
+    check_user = OneTimeCode.objects.all()
+    for next_user in check_user:
+        print(next_user)
+        if email == next_user.one_email and code == next_user.one_check_code:
+            user = User.objects.create_user(
+                username=next_user.one_username,
+                password=next_user.one_password,
+                first_name=next_user.one_first_name,
+                last_name=next_user.one_last_name,
+                email=next_user.one_email,
+            )
+            redirect('publication_list')
+    return render(request, 'ver_email_page.html')
+
+

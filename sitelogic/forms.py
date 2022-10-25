@@ -3,6 +3,7 @@ from .models import Publication
 from allauth.account.forms import SignupForm
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 
 class PublicationForm(forms.ModelForm):
    class Meta:
@@ -31,3 +32,18 @@ class UserForm(forms.ModelForm):
            'first_name',
            'last_name',
        ]
+
+class BaseRegisterForm(UserCreationForm):
+    email = forms.EmailField(label = "Email")
+    first_name = forms.CharField(label = "Имя")
+    last_name = forms.CharField(label = "Фамилия")
+    # Verification_code = forms.CharField(label="Проверочный код")
+
+    class Meta:
+        model = User
+        fields = ("username",
+                  "first_name",
+                  "last_name",
+                  "email",
+                  "password1",
+                  "password2", )
