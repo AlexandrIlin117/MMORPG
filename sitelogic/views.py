@@ -12,6 +12,7 @@ from .forms import PublicationForm, BaseRegisterForm
 from .filters import PublicationFilter
 from django.core.mail import EmailMultiAlternatives # импортируем класс для создание объекта письма с html
 from django.template.loader import render_to_string # импортируем функцию, которая срендерит наш html в текст
+from django.contrib.auth import authenticate, login
 
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
@@ -235,6 +236,10 @@ def ver_email(request):
                 last_name=next_user.one_last_name,
                 email=next_user.one_email,
             )
+            user = authenticate(username=next_user.one_username, password=next_user.one_password)
+            if user is not None:
+                login(request, user)
+                return redirect('publication_list')
             redirect('publication_list')
     return render(request, 'ver_email_page.html')
 
